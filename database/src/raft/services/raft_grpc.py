@@ -61,7 +61,8 @@ class RaftService(RaftServicer):
             response.message = "Rolled back successfully"
             response.status = True
             self.commit_data = None
-            self.commit_lock.release()
+            if self.commit_lock.locked(): 
+                self.commit_lock.release()
             return response 
 
         if int(request.id) == int(self.commit_data):

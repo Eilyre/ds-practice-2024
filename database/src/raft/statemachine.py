@@ -15,7 +15,7 @@ class StateMachine:
             elif operation == 'delete':
                 return self.delete(key)
             else:
-                return "Unknown operation"
+                return f"Unknown operation {operation}"
 
     def set(self, key, value):
         self.data_store[key] = value

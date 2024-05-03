@@ -69,7 +69,7 @@ class RaftService(RaftServicer):
             try:
                 raft_request = Command()
                 raft_request.key = str(self.commit_data)
-                raft_request.operation= "write"
+                raft_request.operation= "set"
                 raft_request.value = "writing is hard"
                 self.node.write_command(raft_request)
                 response.message = "Committed successfully"

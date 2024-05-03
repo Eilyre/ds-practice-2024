@@ -87,3 +87,16 @@ graph LR
     style I fill:#efe,stroke:#333,stroke-width:2px
     style J fill:#fee,stroke:#333,stroke-width:2px
 ```
+
+#### Database - Raft implementation
+
+The database implements the Raft consistency protocol with State Machine replication. It runs three instances, which elect a leader, and start replicating their logs to each other, which then get applied to the node-local state machines.
+
+The best visualization for that is here: [Raft Consensus Simulator](https://observablehq.com/@stwind/raft-consensus-simulator)
+
+After cluster has been achieved, the state machine allows for specific operations to be made:
+
+* `set`/`update`
+* `delete`
+
+No `read` is implemented, but that's trivial. All write requests to non-leader nodes are redirected to the leader, if possible.

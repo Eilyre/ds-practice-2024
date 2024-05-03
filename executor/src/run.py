@@ -62,33 +62,41 @@ def send_request_commits(id, checkout_request: mq.CheckoutRequest):
     return True, message1 + " " + message2 
 
 
-def send_commits(id, checkout_request: mq.CheckoutRequest):
+def send_commits(id, rollback):
+    # Sending commits to raft node
     with grpc.insecure_channel('raft_node_1:50060') as channel:
         stub = raft_grpc.RaftStub(channel)
-        message = raft.Commit_Message()
-        message.id = id
-        message.rollback = False
-        response: raft.Response = stub.Commit(message)
-    
-    if not response.status:
-        logs.error(f"Failed to send commits for id {id}. Error: {response.message}")
-        return False, response.message
-    message1 = response.message
-    logs.debug(f"Commits sent for id {id}. Response: {message1}")
+        message_raft = raft.Commit_Message()
+        message_raft.id = id
+        message_raft.rollback = rollback
+        response_raft = stub.Commit(message_raft)
 
+    status1 = response_raft.status
+    message1 = response_raft.message
+
+    if not status1:
+        logs.error(f"Failed to send commits for id {id}. Error: {message1}")
+    else:
+        logs.debug(f"Commits sent for id {id}. Response: {message1}")
+
+    # Sending payment commits
     with grpc.insecure_channel('payment_service:50056') as channel:
         stub = payment_service_grpc.Payment_ServiceStub(channel)
-        message = payment_service.Commit_Message()
-        message.id = id
-        message.rollback = False
-        response = stub.Commit(message)
+        message_payment = payment_service.Commit_Message()
+        message_payment.id = id
+        message_payment.rollback = rollback
+        response_payment = stub.Commit(message_payment)
+        
+    status2 = response_payment.status
+    message2 = response_payment.message
 
-    if not response.status:
-        logs.error(f"Failed to send payment commits for id {id}. Error: {response.message}")
-        return False, response.message
-    message2 = response.message
-    logs.debug(f"Payment commits sent for id {id}. Response: {message2}")
-    return True, message1 + " " + message2 
+    if not status2:
+        logs.error(f"Failed to send payment commits for id {id}. Error: {message2}")
+        return False, message2
+    else:
+        logs.debug(f"Payment commits sent for id {id}. Response: {message2}")
+
+    return True, f"{message1} {message2}"
 
 def process_message(stop_event):
     while not stop_event.is_set():
@@ -99,11 +107,14 @@ def process_message(stop_event):
             status, message = send_request_commits(id, message)
             time.sleep(5)
             if not status:
-                raise Exception(message)
-                
-            status, message = send_commits(id, message)
+                rollback = True 
+                logs.error(message)
+            else:
+                rollback=False
+
+            status, message = send_commits(id, rollback)
             if not status:
-                raise Exception(message)
+                logs.error(message)
             else:
                 logs.info("Message processed successfully.")
 

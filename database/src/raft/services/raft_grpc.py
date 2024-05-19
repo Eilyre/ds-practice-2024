@@ -10,10 +10,10 @@ import grpc
 from ..node import Node
 from ..proto.raft_pb2_grpc import RaftServicer, add_RaftServicer_to_server
 from ..proto.raft_pb2 import *
-from ..logger import logger
+# from ..logger import logger
 import threading
 
-logs = logger.get_module_logger("DATABASE")
+# logs = logger.get_module_logger("DATABASE")
 
 class RaftService(RaftServicer):
     def __init__(self, node_id, nodes, server):
@@ -40,7 +40,7 @@ class RaftService(RaftServicer):
         return self.node.write_command(request)
 
     def Request_Commit(self, request, context):
-        logs.info("Request Commit triggered for id: %s", request.id)
+        self.node.logger.info("Request Commit triggered for id: %s", request.id)
         response = Response()
         if self.commit_lock.locked():
             response.status = False
@@ -54,7 +54,7 @@ class RaftService(RaftServicer):
         return response
         
     def Commit(self, request: Commit_Message, context):
-        logs.info("Commit triggered for id: %s", request.id)
+        self.node.logger.info("Commit triggered for id: %s", request.id)
         response = Response()
 
         if request.rollback:
@@ -77,7 +77,7 @@ class RaftService(RaftServicer):
                 self.commit_data = None
                 self.commit_lock.release()
             except Exception as e:
-                logs.error("Error during committing: %s", e)
+                self.node.logger.error("Error during committing: %s", e)
                 response.message = "Committing failed in Raft.: " + str(e)
                 response.status = False
         else:

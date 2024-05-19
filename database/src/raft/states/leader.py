@@ -79,11 +79,17 @@ class Leader(NodeState):
             'command': command
         }
 
+        if self.node.state_machine.is_locked(command["key"]) and command["operation"] in ["set", "update", "delete", "lock"]:
+            return raft_pb2.RaftClientStatus(error=True, leader_id=self.node.node_id, message=f"Key {command['key']} is currently locked.")
+
+        if self.node.state_machine.is_locked(command["key"]) is False and command["operation"] in ["commit"]:
+            return raft_pb2.RaftClientStatus(error=True, leader_id=self.node.node_id,
+                                             message=f"Key {command['key']} is currently not locked, cannot commit.")
+
         self.node.log.append(entry)
         self.logger.debug(f"Node {self.node.node_id} got a write request for new log entry: {entry}")
         self._append_entries()
 
-        # TODO: This should be an asynchronous callback to replication instead.
         return raft_pb2.RaftClientStatus(leader_id=self.node.node_id, message=f"Wrote {command} to log.")
 
     def _append_entries(self):

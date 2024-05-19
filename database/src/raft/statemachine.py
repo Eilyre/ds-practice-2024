@@ -1,11 +1,12 @@
 import threading
 
+
 class StateMachine:
     def __init__(self):
         self._data_store = {}
         self._ds_lock = threading.Lock()
 
-    def apply(self, operation, key, value=None, locked=False):
+    def apply(self, operation, key, value=None):
         with self._ds_lock:
             match operation.lower():
                 case "set":
@@ -35,7 +36,7 @@ class StateMachine:
         return self._data_store.get(key, "Key not found")["value"]
 
     def _delete(self, key):
-        if key in self._data_store.keys() and  self._data_store[key]["locked"] == True:
+        if key in self._data_store.keys() and self._data_store[key]["locked"] == True:
             return BlockingIOError(f"Cannot delete locked key: {key}.")
 
         else:
@@ -49,6 +50,9 @@ class StateMachine:
     def _unlock(self, key):
         self._data_store[key]["locked"] = False
         return f"Unlocked key: {key}"
+
+    def is_locked(self, key):
+        return self._data_store[key]["locked"] if key in self._data_store.keys() else False
 
     def __len__(self):
         """Returns the number of items in the state machine."""

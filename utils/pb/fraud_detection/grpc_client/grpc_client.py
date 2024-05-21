@@ -14,7 +14,7 @@ logs = logger.get_module_logger("Fraud Detection grpc client")
 
 def suggest(vcm:VectorClockMessage):
     logs.info("suggest function triggered")
-    with grpc.insecure_channel('suggestions_service:50053') as channel:
+    with grpc.insecure_channel('suggestions-service:50053') as channel:
         stub = suggestions_service_grpc.SuggestionServiceStub(channel)
         response : Determination= stub.Suggest(vcm)
     return response

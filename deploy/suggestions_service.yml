@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: suggestions-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: suggestions-service
+  template:
+    metadata:
+      labels:
+        app: suggestions-service
+    spec:
+      containers:
+        - name: suggestions-service
+          image: registry.hpc.ut.ee/sander/suggestions-service:latest
+          ports:
+            - containerPort: 50053
+          env:
+            - name: PYTHONUNBUFFERED
+              value: "TRUE"
+            - name: PYTHONFILE
+              value: "/app/suggestions_service/src/run.py"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: suggestions-service
+spec:
+  selector:
+    app: suggestions-service
+  ports:
+    - protocol: TCP
+      port: 50053
+      targetPort: 50053
+  type: ClusterIP
+

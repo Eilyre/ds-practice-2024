@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: raft-nodes
+spec:
+  serviceName: "raft"
+  replicas: 3
+  selector:
+    matchLabels:
+      app: raft
+  template:
+    metadata:
+      labels:
+        app: raft
+    spec:
+      containers:
+        - name: raft-node
+          image: registry.hpc.ut.ee/sander/raft_node_1:latest
+          ports:
+            - containerPort: 50060
+          env:
+            - name: NODE_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: DOMAIN
+              value: .raft
+            - name: PEERS
+              value: raft-nodes-0.raft:50060,raft-nodes-1.raft:50060,raft-nodes-2.raft:50060
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: raft
+spec:
+  ports:
+    - port: 50060
+      name: raft
+  clusterIP: None
+  selector:
+    app: raft
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: database
+spec:
+  selector:
+    app: raft
+  ports:
+    - protocol: TCP
+      port: 50060
+      targetPort: 50060
+  type: ClusterIP
+  sessionAffinity: None

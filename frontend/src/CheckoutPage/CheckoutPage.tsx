@@ -60,8 +60,10 @@ const CheckoutPage: React.FC = () => {
         event.preventDefault();
 
         try {
+            const port = '8081'; // The port you need to target
+            const baseUrl = `${window.location.protocol}//${window.location.hostname}:${port}`;
 
-            const response = await axios.post('http://0.0.0.0:8081/checkout', {
+            const response = await axios.post(`${baseUrl}/checkout`, {
                 user: {
                     name: formData.userName,
                     contact: formData.userContact,

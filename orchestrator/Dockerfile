@@ -7,11 +7,19 @@ WORKDIR /app
 
 # Copy the requirements file to the working directory
 COPY ./orchestrator/requirements.txt .
+ADD ./orchestrator/src orchestrator/src
+ADD ./utils utils
 
 # Install the Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
-# Install reloadium for hot reloading
+
+# Set the instrumentation variables
+ENV OTEL_SERVICE_NAME=orchestrator
+ENV OTEL_TRACES_EXPORTER=console,otlp
+ENV OTEL_METRICS_EXPORTER=console
+ENV OTEL_EXPORTER_OTLP_TRACES_ENDPOINT="observability:4317"
+ENV GRPC_TRACE=http,call_error,connectivity_state
 
 
 # Set the command to run the container
-CMD python3 "orchestrator/src/run.py"
+CMD opentelemetry-instrument python3 "orchestrator/src/run.py"

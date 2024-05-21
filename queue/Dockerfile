@@ -8,6 +8,7 @@ WORKDIR /app
 # Copy the requirements file to the working directory
 COPY ./queue/requirements.txt .
 ADD ./queue/src queue/src
+ADD ./utils utils
 
 # Install the Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt

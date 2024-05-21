@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orchestrator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: orchestrator
+  template:
+    metadata:
+      labels:
+        app: orchestrator
+    spec:
+      containers:
+        - name: orchestrator
+          image: registry.hpc.ut.ee/sander/orchestrator:latest
+          ports:
+            - containerPort: 5000
+          env:
+            - name: PYTHONUNBUFFERED
+              value: "TRUE"
+            - name: PYTHONFILE
+              value: "/app/orchestrator/src/app/run.py"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: orchestrator
+  labels:
+    cilium.io/public-ip: "false"
+  annotations:
+    "io.cilium/lb-ipam-sharing-key": "0000"
+spec:
+  selector:
+    app: orchestrator
+  ports:
+    - protocol: TCP
+      port: 8081
+      targetPort: 5000
+  type: LoadBalancer

@@ -16,5 +16,4 @@ RUN npm install
 # Copy the rest of the application files
 COPY ./frontend .
 
-# Start the development server with hot reloading
 CMD npm run start

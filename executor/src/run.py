@@ -48,7 +48,7 @@ def send_request_commits(id, checkout_request: mq.CheckoutRequest):
     message1 = response.message
     logs.debug(f"Request commits sent for id {id}. Response: {message1}")
 
-    with grpc.insecure_channel('payment_service:50056') as channel:
+    with grpc.insecure_channel('payment-service:50056') as channel:
         stub = payment_service_grpc.Payment_ServiceStub(channel)
         message = payment_service.Request_Commit_Message()
         message.id = id

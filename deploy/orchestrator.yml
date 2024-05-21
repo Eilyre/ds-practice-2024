@@ -28,7 +28,7 @@ kind: Service
 metadata:
   name: orchestrator
   labels:
-    cilium.io/public-ip: "false"
+    cilium.io/public-ip: "true"
   annotations:
     "io.cilium/lb-ipam-sharing-key": "0000"
 spec:

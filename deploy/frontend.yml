@@ -3,10 +3,10 @@ kind: Service
 metadata:
   name: frontend
   labels:
-    cilium.io/public-ip: "false"
+    cilium.io/public-ip: "true"
   annotations:
     "io.cilium/lb-ipam-sharing-key": "0000"
-    "io.cilium/lb-ipam-ips": "172.16.232.5"
+    "io.cilium/lb-ipam-ips": "193.40.46.246"
 spec:
   selector:
     app: frontend

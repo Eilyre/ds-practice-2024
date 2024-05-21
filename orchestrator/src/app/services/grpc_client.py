@@ -18,7 +18,7 @@ logs = logger.get_module_logger("GRPC CLIENT")
 
 def verify_transaction(vc_message: VectorClockMessage):
     logs.info("verify_transaction function triggered")
-    with grpc.insecure_channel('transaction_verification:50052') as channel:
+    with grpc.insecure_channel('transaction-verification:50052') as channel:
         stub = transaction_verification_grpc.TransactionServiceStub(channel)
         response = stub.verifyTransaction(vc_message)
     return response
@@ -53,7 +53,7 @@ def send_data(checkout_request, vector_clock: VectorClock):
     )
     logs.info("Request compiled: %s", request)
 
-    with grpc.insecure_channel('transaction_verification:50052') as channel:
+    with grpc.insecure_channel('transaction-verification:50052') as channel:
         stub = transaction_verification_grpc.TransactionServiceStub(channel)
         response1: Determination = stub.sendData(request)
         logs.info("Transaction_verification replied")
@@ -63,14 +63,14 @@ def send_data(checkout_request, vector_clock: VectorClock):
 
     logs.info("Data sent to transaction_verification")
 
-    with grpc.insecure_channel('fraud_detection:50051') as channel:
+    with grpc.insecure_channel('fraud-detection:50051') as channel:
         stub = fraud_detection_grpc.FraudServiceStub(channel)
         response2: Determination = stub.sendData(request)  # type Determination
     vc_2 = vc_msg_2_object(response2.vector_clock)
     vector_clock.merge(vc_2)
     vector_clock.update()
 
-    with grpc.insecure_channel('suggestions_service:50053') as channel:
+    with grpc.insecure_channel('suggestions-service:50053') as channel:
         stub = suggestions_service_grpc.SuggestionServiceStub(channel)
         response3: Determination = stub.sendData(request)
     vc_3 = vc_msg_2_object(response3.vector_clock)

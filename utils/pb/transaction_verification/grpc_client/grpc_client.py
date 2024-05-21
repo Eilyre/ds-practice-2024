@@ -15,7 +15,7 @@ logs = logger.get_module_logger("Transaction verification grpc client")
 
 def fraud(vcm):
     logs.info("fraud function triggered")
-    with grpc.insecure_channel('fraud_detection:50051') as channel:
+    with grpc.insecure_channel('fraud-detection:50051') as channel:
         stub = fraud_detection_grpc.FraudServiceStub(channel)
         response =  stub.DetectFraud(vcm)
     return response

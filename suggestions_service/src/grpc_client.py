@@ -16,7 +16,7 @@ logs = logger.get_module_logger("GRPC CLIENT")
 
 async def suggest(book_titles):
     logs.info("suggest function triggered")
-    async with grpc.aio.insecure_channel('suggestions_service:50053') as channel:
+    async with grpc.aio.insecure_channel('suggestions-service:50053') as channel:
         stub = suggestions_service_grpc.SuggestionServiceStub(channel)
         response = await stub.Suggest(suggestions_service.SuggestionRequest(book_titles=["123", "233"]))
     return response.book_suggestions

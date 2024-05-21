@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  labels:
+    cilium.io/public-ip: "true"
+  annotations:
+    "io.cilium/lb-ipam-sharing-key": "0000"
+    "io.cilium/lb-ipam-ips": "193.40.46.246"
+spec:
+  selector:
+    app: frontend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+  type: LoadBalancer
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-ingress-on-port-80
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+  ingress:
+    - {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: registry.hpc.ut.ee/sander/frontend:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: CHOKIDAR_USEPOLLING
+              value: "true"
+            - name: WDS_SOCKET_PORT
+              value: "0"

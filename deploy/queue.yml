@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: queue
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: queue
+  template:
+    metadata:
+      labels:
+        app: queue
+    spec:
+      containers:
+        - name: queue
+          image: registry.hpc.ut.ee/sander/queue:latest
+          ports:
+            - containerPort: 50055
+          env:
+            - name: OTEL_PYTHON_LOGGING_AUTO_INSTRUMENTATION_ENABLED
+              value: "true"
+            - name: PYTHONUNBUFFERED
+              value: "TRUE"
+            - name: PYTHONFILE
+              value: "/app/queue/src/run.py"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: queue
+spec:
+  selector:
+    app: queue
+  ports:
+    - protocol: TCP
+      port: 50055
+      targetPort: 50055
+  type: ClusterIP
+

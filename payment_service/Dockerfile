@@ -7,9 +7,21 @@ WORKDIR /app
 
 # Copy the requirements file to the working directory
 COPY ./payment_service/requirements.txt .
+ADD ./payment_service/src payment_service/src
+ADD ./utils utils
 
 # Install the Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
-ADD ./payment_service/src payment_service/src
+
+ENV OTEL_SERVICE_NAME=payment-service
+ENV OTEL_TRACES_EXPORTER=otlp_proto_grpc
+ENV OTEL_LOGS_EXPORTER=otlp_proto_grpc
+ENV OTEL_METRICS_EXPORTER=otlp_proto_grpc
+ENV OTEL_EXPORTER_OTLP_ENDPOINT="http://observability:4317"
+ENV OTEL_EXPORTER_OTLP_TRACES_INSECURE=true
+ENV OTEL_EXPORTER_OTLP_METRICS_INSECURE=true
+ENV OTEL_EXPORTER_OTLP_LOGS_INSECURE=true
+ENV GRPC_TRACE=http,call_error,connectivity_state
+
 # Set the command to run the application
-CMD python3 "payment_service/src/app.py"
+CMD opentelemetry-instrument python3 "payment_service/src/app.py"

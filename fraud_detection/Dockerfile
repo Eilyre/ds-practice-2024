@@ -7,12 +7,11 @@ WORKDIR /app
 
 # Copy the requirements file to the working directory
 COPY ./fraud_detection/requirements.txt .
+ADD ./fraud_detection/src fraud_detection/src
+ADD ./utils utils
 
 # Install the Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
-# Install reloadium for hot reloading
-# This allows us to make changes to the code without having to rebuild the container
-RUN pip install reloadium
 
 # Set the command to run the application
-CMD reloadium run "fraud_detection/src/app.py"
+CMD python3 "fraud_detection/src/app.py"

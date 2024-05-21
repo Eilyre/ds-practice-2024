@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fraud-detection
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fraud-detection
+  template:
+    metadata:
+      labels:
+        app: fraud-detection
+    spec:
+      containers:
+        - name: fraud-detection
+          image: registry.hpc.ut.ee/sander/fraud-detection:latest
+          ports:
+            - containerPort: 50051
+          env:
+            - name: PYTHONUNBUFFERED
+              value: "TRUE"
+            - name: PYTHONFILE
+              value: "/app/fraud_detection/src/app.py"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fraud-detection
+spec:
+  selector:
+    app: fraud-detection
+  ports:
+    - protocol: TCP
+      port: 50051
+      targetPort: 50051
+  type: ClusterIP
+

@@ -1,5 +1,4 @@
 import sys
-import grpc
 from pathlib import Path
 
 current_dir = Path(__file__).parent.absolute()
@@ -8,9 +7,6 @@ sys.path.insert(0, str(app_dir))
 
 import utils.pb.mq.mq_pb2 as mq
 import utils.pb.mq.mq_pb2_grpc as mq_grpc
-
-import utils.pb.database.database_pb2 as db
-import utils.pb.database.database_pb2_grpc as db_grpc
 
 import utils.pb.payment_service.payment_service_pb2 as payment_service
 import utils.pb.payment_service.payment_service_pb2_grpc as payment_service_grpc
@@ -26,6 +22,8 @@ import time
 
 
 logs = logger.get_module_logger("EXECUTOR")
+logs.info("Executor started")
+
 
 def dequeue():
     with grpc.insecure_channel('queue:50055') as channel:
@@ -35,7 +33,7 @@ def dequeue():
 
 
 def send_request_commits(id, checkout_request: mq.CheckoutRequest):
-    with grpc.insecure_channel('raft_node_1:50060') as channel:
+    with grpc.insecure_channel('database:50060') as channel:
         stub = raft_grpc.RaftStub(channel)
         message = raft.Request_Commit_Message()
         message.id = id
@@ -46,10 +44,11 @@ def send_request_commits(id, checkout_request: mq.CheckoutRequest):
     if not response.status:
         logs.error(f"Failed to send request commits for id {id}. Error: {response.message}")
         return False, response.message
+
     message1 = response.message
     logs.debug(f"Request commits sent for id {id}. Response: {message1}")
 
-    with grpc.insecure_channel('payment_service:50056') as channel:
+    with grpc.insecure_channel('payment-service:50056') as channel:
         stub = payment_service_grpc.Payment_ServiceStub(channel)
         message = payment_service.Request_Commit_Message()
         message.id = id
@@ -58,14 +57,15 @@ def send_request_commits(id, checkout_request: mq.CheckoutRequest):
     if not response.status:
         logs.error(f"Failed to send payment request commits for id {id}. Error: {response.message}")
         return False, response.message
+
     message2 = response.message
     logs.debug(f"Payment request commits sent for id {id}. Response: {message2}")
-    return True, message1 + " " + message2 
+    return True, message1 + " " + message2
 
 
 def send_commits(id, rollback):
     # Sending commits to raft node
-    with grpc.insecure_channel('raft_node_1:50060') as channel:
+    with grpc.insecure_channel('database:50060') as channel:
         stub = raft_grpc.RaftStub(channel)
         message_raft = raft.Commit_Message()
         message_raft.id = id
@@ -81,13 +81,13 @@ def send_commits(id, rollback):
         logs.debug(f"Commits sent for id {id}. Response: {message1}")
 
     # Sending payment commits
-    with grpc.insecure_channel('payment_service:50056') as channel:
+    with grpc.insecure_channel('payment-service:50056') as channel:
         stub = payment_service_grpc.Payment_ServiceStub(channel)
         message_payment = payment_service.Commit_Message()
         message_payment.id = id
         message_payment.rollback = rollback
         response_payment = stub.Commit(message_payment)
-        
+
     status2 = response_payment.status
     message2 = response_payment.message
 
@@ -99,6 +99,7 @@ def send_commits(id, rollback):
 
     return True, f"{message1} {message2}"
 
+
 def process_message(stop_event):
     while not stop_event.is_set():
         try:
@@ -108,10 +109,10 @@ def process_message(stop_event):
             status, message = send_request_commits(id, message)
             time.sleep(5)
             if not status:
-                rollback = True 
+                rollback = True
                 logs.error(message)
             else:
-                rollback=False
+                rollback = False
 
             status, message = send_commits(id, rollback)
             if not status:
@@ -122,9 +123,11 @@ def process_message(stop_event):
         except Exception as e:
             logs.error(f"An error occurred: {e}")
 
+
 def signal_handler(stop_event, signum, frame):
     logs.info("Signal {} received, stopping executor...".format(signum))
     stop_event.set()
+
 
 def start_executor():
     stop_event = threading.Event()
@@ -135,6 +138,7 @@ def start_executor():
     executor_thread = threading.Thread(target=process_message, args=(stop_event,))
     executor_thread.start()
     executor_thread.join()
+
 
 if __name__ == '__main__':
     start_executor()

@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: transaction-verification
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: transaction-verification
+  template:
+    metadata:
+      labels:
+        app: transaction-verification
+    spec:
+      containers:
+        - name: transaction-verification
+          image: registry.hpc.ut.ee/sander/transaction-verification:latest
+          ports:
+            - containerPort: 50052
+          env:
+            - name: PYTHONUNBUFFERED
+              value: "TRUE"
+            - name: PYTHONFILE
+              value: "/app/transaction_verification/src/run.py"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: transaction-verification
+spec:
+  selector:
+    app: transaction-verification
+  ports:
+    - protocol: TCP
+      port: 50052
+      targetPort: 50052
+  type: ClusterIP

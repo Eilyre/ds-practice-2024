@@ -15,9 +15,13 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Set the instrumentation variables
 ENV OTEL_SERVICE_NAME=orchestrator
-ENV OTEL_TRACES_EXPORTER=console,otlp
-ENV OTEL_METRICS_EXPORTER=console
-ENV OTEL_EXPORTER_OTLP_TRACES_ENDPOINT="observability:4317"
+ENV OTEL_TRACES_EXPORTER=otlp_proto_grpc
+ENV OTEL_LOGS_EXPORTER=otlp_proto_grpc
+ENV OTEL_METRICS_EXPORTER=otlp_proto_grpc
+ENV OTEL_EXPORTER_OTLP_ENDPOINT="http://observability:4317"
+ENV OTEL_EXPORTER_OTLP_TRACES_INSECURE=true
+ENV OTEL_EXPORTER_OTLP_METRICS_INSECURE=true
+ENV OTEL_EXPORTER_OTLP_LOGS_INSECURE=true
 ENV GRPC_TRACE=http,call_error,connectivity_state
 
 

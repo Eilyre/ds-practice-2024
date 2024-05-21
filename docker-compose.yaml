@@ -71,14 +71,14 @@ services:
       - PYTHONUNBUFFERED=TRUE
       - PYTHONFILE=/app/transaction_verification/src/run.py
 
-  raft_node_1:
+  database:
     build:
       context: ./
       dockerfile: ./database/Dockerfile
     ports:
       - "50060:50060"
     environment:
-      - NODE_ID=raft_node_1
+      - NODE_ID=database
       - PEERS=raft_node_2:50060,raft_node_3:50060
 
   raft_node_2:
@@ -89,7 +89,7 @@ services:
       - "50061:50060"
     environment:
       - NODE_ID=raft_node_2
-      - PEERS=raft_node_1:50060,raft_node_3:50060
+      - PEERS=database:50060,raft_node_3:50060
 
   raft_node_3:
     build:
@@ -99,7 +99,7 @@ services:
       - "50062:50060"
     environment:
       - NODE_ID=raft_node_3
-      - PEERS=raft_node_1:50060,raft_node_2:50060
+      - PEERS=database:50060,raft_node_2:50060
 
   queue:
     build:

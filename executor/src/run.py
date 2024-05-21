@@ -35,7 +35,7 @@ def dequeue():
 def send_request_commits(id, checkout_request: mq.CheckoutRequest):
     with grpc.insecure_channel('database:50060') as channel:
         stub = raft_grpc.RaftStub(channel)
-        message = raft.Request_Commit_Message()
+        message: raft.Request_Commit_Message = raft.Request_Commit_Message()
         message.id = id
 
         response: raft.Response = stub.Request_Commit(request=message)

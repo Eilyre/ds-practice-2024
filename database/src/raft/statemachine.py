@@ -14,7 +14,7 @@ class StateMachine:
                 case "update":
                     return self._set(key, value)
                 case "get":
-                    return self._delete(key)
+                    return self._get(key)
                 case "delete":
                     return self._delete(key)
                 case "lock":
@@ -44,7 +44,12 @@ class StateMachine:
             return BlockingIOError(f"Cannot overwrite locked key: {key}.")
 
     def _get(self, key):
-        return self._data_store.get(key, "Key not found")["value"]
+            r = self._data_store.get(key, "Key not found")
+            if r == "Key not found":
+                return r
+            else:
+                return r["value"]
+
 
     def _delete(self, key):
         if key in self._data_store.keys() and self._data_store[key]["locked"] is True:

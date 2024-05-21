@@ -114,7 +114,7 @@ def order(checkout_request : mq.CheckoutRequest, priority=1000):
     billing_address_info_instance = mq.BillingAddressData(street=billing_address_info["street"], city=billing_address_info["city"], state=billing_address_info["state"], zip=billing_address_info["zip"], country=billing_address_info["country"]) if billing_address_info else None
     device_info_instance = mq.DeviceData(type=device_info["type"], model=device_info["model"], os=device_info["os"]) if device_info else None
     browser_info_instance = mq.BrowserData(name=browser_info["name"], version=browser_info["version"]) if browser_info else None
-    items_info_instance = [mq.ItemData(name="suva", quantity="quantity")] if items_info else []
+    items_info_instance = [mq.ItemData(name=str(items_info[0]["name"]), quantity="1")] if items_info else []
     vector_clock_message = mq.VectorClockMessage()
 
     request = mq.CheckoutRequest(

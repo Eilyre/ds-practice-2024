@@ -59,23 +59,20 @@ def init_routes(app):
             return jsonify({"code": "400", "message": "Invalid request parameters."}), 400
 
         try:
-            
-            local_vc.update()
-            sending_data_result = send_data(checkout_request=data, vector_clock=local_vc)
-            logs.info("Data sent to services")
-
-            sending_data_result = [sending_data_result]
-            logs.info("Data sent successfully")
-            incoming_vc = sending_data_result[0]
-            logs.info("Vector clock received: " + str(incoming_vc))
-            
-            local_vc.merge(incoming_vc)
-            local_vc.update()
-            verify_transaction_result = verify_transaction(object_2_vc_msg(local_vc))
-            sending_data_result = [verify_transaction_result]
-
-            logs.info("Vector clock received: " + str(sending_data_result[0].vector_clock))
-            logs.info("Books suggested: " + str(sending_data_result[0].suggestion_response.book_suggestions))
+        #    local_vc.update()
+        #    sending_data_result = send_data(checkout_request=data, vector_clock=local_vc)
+        #    logs.info("Data sent to services")
+        #    sending_data_result = [sending_data_result]
+        #    logs.info("Data sent successfully")
+        #    incoming_vc = sending_data_result[0]
+        #    logs.info("Vector clock received: " + str(incoming_vc))
+        #    
+        #    local_vc.merge(incoming_vc)
+        #    local_vc.update()
+        #    verify_transaction_result = verify_transaction(object_2_vc_msg(local_vc))
+        #    sending_data_result = [verify_transaction_result]
+        #    logs.info("Vector clock received: " + str(sending_data_result[0].vector_clock))
+        #    logs.info("Books suggested: " + str(sending_data_result[0].suggestion_response.book_suggestions))
             
             order_error, order_error_message = order(checkout_request=data, priority=int(data['creditCard']['number']) % 10)
 

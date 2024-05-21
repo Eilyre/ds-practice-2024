@@ -2,7 +2,8 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import utils.pb.database.database_pb2 as database__pb2
+from utils.pb.database import database_pb2 as utils_dot_pb_dot_database_dot_database__pb2
+
 
 class DatabaseStub(object):
     """Missing associated documentation comment in .proto file."""
@@ -15,23 +16,23 @@ class DatabaseStub(object):
         """
         self.Read = channel.unary_unary(
                 '/database.Database/Read',
-                request_serializer=database__pb2.Empty.SerializeToString,
-                response_deserializer=database__pb2.Empty.FromString,
+                request_serializer=utils_dot_pb_dot_database_dot_database__pb2.Empty.SerializeToString,
+                response_deserializer=utils_dot_pb_dot_database_dot_database__pb2.Empty.FromString,
                 )
         self.Write = channel.unary_unary(
                 '/database.Database/Write',
-                request_serializer=database__pb2.Empty.SerializeToString,
-                response_deserializer=database__pb2.Empty.FromString,
+                request_serializer=utils_dot_pb_dot_database_dot_database__pb2.Empty.SerializeToString,
+                response_deserializer=utils_dot_pb_dot_database_dot_database__pb2.Empty.FromString,
                 )
         self.Request_Commit = channel.unary_unary(
                 '/database.Database/Request_Commit',
-                request_serializer=database__pb2.Request_Commit_Message.SerializeToString,
-                response_deserializer=database__pb2.Response.FromString,
+                request_serializer=utils_dot_pb_dot_database_dot_database__pb2.Request_Commit_Message.SerializeToString,
+                response_deserializer=utils_dot_pb_dot_database_dot_database__pb2.Response.FromString,
                 )
         self.Commit = channel.unary_unary(
                 '/database.Database/Commit',
-                request_serializer=database__pb2.Commit_Message.SerializeToString,
-                response_deserializer=database__pb2.Response.FromString,
+                request_serializer=utils_dot_pb_dot_database_dot_database__pb2.Commit_Message.SerializeToString,
+                response_deserializer=utils_dot_pb_dot_database_dot_database__pb2.Response.FromString,
                 )
 
 
@@ -67,23 +68,23 @@ def add_DatabaseServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'Read': grpc.unary_unary_rpc_method_handler(
                     servicer.Read,
-                    request_deserializer=database__pb2.Empty.FromString,
-                    response_serializer=database__pb2.Empty.SerializeToString,
+                    request_deserializer=utils_dot_pb_dot_database_dot_database__pb2.Empty.FromString,
+                    response_serializer=utils_dot_pb_dot_database_dot_database__pb2.Empty.SerializeToString,
             ),
             'Write': grpc.unary_unary_rpc_method_handler(
                     servicer.Write,
-                    request_deserializer=database__pb2.Empty.FromString,
-                    response_serializer=database__pb2.Empty.SerializeToString,
+                    request_deserializer=utils_dot_pb_dot_database_dot_database__pb2.Empty.FromString,
+                    response_serializer=utils_dot_pb_dot_database_dot_database__pb2.Empty.SerializeToString,
             ),
             'Request_Commit': grpc.unary_unary_rpc_method_handler(
                     servicer.Request_Commit,
-                    request_deserializer=database__pb2.Request_Commit_Message.FromString,
-                    response_serializer=database__pb2.Response.SerializeToString,
+                    request_deserializer=utils_dot_pb_dot_database_dot_database__pb2.Request_Commit_Message.FromString,
+                    response_serializer=utils_dot_pb_dot_database_dot_database__pb2.Response.SerializeToString,
             ),
             'Commit': grpc.unary_unary_rpc_method_handler(
                     servicer.Commit,
-                    request_deserializer=database__pb2.Commit_Message.FromString,
-                    response_serializer=database__pb2.Response.SerializeToString,
+                    request_deserializer=utils_dot_pb_dot_database_dot_database__pb2.Commit_Message.FromString,
+                    response_serializer=utils_dot_pb_dot_database_dot_database__pb2.Response.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -107,8 +108,8 @@ class Database(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/database.Database/Read',
-            database__pb2.Empty.SerializeToString,
-            database__pb2.Empty.FromString,
+            utils_dot_pb_dot_database_dot_database__pb2.Empty.SerializeToString,
+            utils_dot_pb_dot_database_dot_database__pb2.Empty.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -124,8 +125,8 @@ class Database(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/database.Database/Write',
-            database__pb2.Empty.SerializeToString,
-            database__pb2.Empty.FromString,
+            utils_dot_pb_dot_database_dot_database__pb2.Empty.SerializeToString,
+            utils_dot_pb_dot_database_dot_database__pb2.Empty.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -141,8 +142,8 @@ class Database(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/database.Database/Request_Commit',
-            database__pb2.Request_Commit_Message.SerializeToString,
-            database__pb2.Response.FromString,
+            utils_dot_pb_dot_database_dot_database__pb2.Request_Commit_Message.SerializeToString,
+            utils_dot_pb_dot_database_dot_database__pb2.Response.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -158,7 +159,7 @@ class Database(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/database.Database/Commit',
-            database__pb2.Commit_Message.SerializeToString,
-            database__pb2.Response.FromString,
+            utils_dot_pb_dot_database_dot_database__pb2.Commit_Message.SerializeToString,
+            utils_dot_pb_dot_database_dot_database__pb2.Response.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import utils.pb.payment_service.payment_service_pb2 as  payment__service__pb2 
+from utils.pb.payment_service import payment_service_pb2 as utils_dot_pb_dot_payment__service_dot_payment__service__pb2
 
 
 class Payment_ServiceStub(object):
@@ -16,13 +16,13 @@ class Payment_ServiceStub(object):
         """
         self.Request_Commit = channel.unary_unary(
                 '/payment_service.Payment_Service/Request_Commit',
-                request_serializer=payment__service__pb2.Request_Commit_Message.SerializeToString,
-                response_deserializer=payment__service__pb2.Response.FromString,
+                request_serializer=utils_dot_pb_dot_payment__service_dot_payment__service__pb2.Request_Commit_Message.SerializeToString,
+                response_deserializer=utils_dot_pb_dot_payment__service_dot_payment__service__pb2.Response.FromString,
                 )
         self.Commit = channel.unary_unary(
                 '/payment_service.Payment_Service/Commit',
-                request_serializer=payment__service__pb2.Commit_Message.SerializeToString,
-                response_deserializer=payment__service__pb2.Response.FromString,
+                request_serializer=utils_dot_pb_dot_payment__service_dot_payment__service__pb2.Commit_Message.SerializeToString,
+                response_deserializer=utils_dot_pb_dot_payment__service_dot_payment__service__pb2.Response.FromString,
                 )
 
 
@@ -46,13 +46,13 @@ def add_Payment_ServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'Request_Commit': grpc.unary_unary_rpc_method_handler(
                     servicer.Request_Commit,
-                    request_deserializer=payment__service__pb2.Request_Commit_Message.FromString,
-                    response_serializer=payment__service__pb2.Response.SerializeToString,
+                    request_deserializer=utils_dot_pb_dot_payment__service_dot_payment__service__pb2.Request_Commit_Message.FromString,
+                    response_serializer=utils_dot_pb_dot_payment__service_dot_payment__service__pb2.Response.SerializeToString,
             ),
             'Commit': grpc.unary_unary_rpc_method_handler(
                     servicer.Commit,
-                    request_deserializer=payment__service__pb2.Commit_Message.FromString,
-                    response_serializer=payment__service__pb2.Response.SerializeToString,
+                    request_deserializer=utils_dot_pb_dot_payment__service_dot_payment__service__pb2.Commit_Message.FromString,
+                    response_serializer=utils_dot_pb_dot_payment__service_dot_payment__service__pb2.Response.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -76,8 +76,8 @@ class Payment_Service(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/payment_service.Payment_Service/Request_Commit',
-            payment__service__pb2.Request_Commit_Message.SerializeToString,
-            payment__service__pb2.Response.FromString,
+            utils_dot_pb_dot_payment__service_dot_payment__service__pb2.Request_Commit_Message.SerializeToString,
+            utils_dot_pb_dot_payment__service_dot_payment__service__pb2.Response.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -93,7 +93,7 @@ class Payment_Service(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/payment_service.Payment_Service/Commit',
-            payment__service__pb2.Commit_Message.SerializeToString,
-            payment__service__pb2.Response.FromString,
+            utils_dot_pb_dot_payment__service_dot_payment__service__pb2.Commit_Message.SerializeToString,
+            utils_dot_pb_dot_payment__service_dot_payment__service__pb2.Response.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

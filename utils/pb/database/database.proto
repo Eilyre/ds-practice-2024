@@ -13,11 +13,11 @@ message Response {
     string message = 2; 
 }
 message Request_Commit_Message{
-    int32 id = 1;
+    string id = 1;
     
 }
 message Commit_Message{
-    int32 id = 1;
+    string id = 1;
     bool rollback = 2; 
 }
 

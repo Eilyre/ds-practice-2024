@@ -40,7 +40,7 @@ class RaftService(RaftServicer):
         return self.node.write_command(request)
 
     def Request_Commit(self, request, context):
-        self.node.logger.info("Request Commit triggered for id: %s", request.id)
+        self.node.logger.info("Request Commit triggered for id: %s", request)
         response = Response()
         if self.commit_lock.locked():
             response.status = False
@@ -65,10 +65,10 @@ class RaftService(RaftServicer):
                 self.commit_lock.release()
             return response 
 
-        if int(request.id) == int(self.commit_data):
+        if request.id == self.commit_data:
             try:
                 raft_request = Command()
-                raft_request.key = str(self.commit_data)
+                raft_request.key = str(request.id)
                 raft_request.operation= "set"
                 raft_request.value = "writing is hard"
                 self.node.write_command(raft_request)

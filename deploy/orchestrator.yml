@@ -35,9 +35,9 @@ spec:
                 fieldRef:
                   fieldPath: spec.nodeName
             - name: OTEL_INSTRUMENTATION_HTTP_CAPTURE_HEADERS_SERVER_REQUEST
-              value: "Accept-Encoding,User-Agent,Referer"
+              value: ".*"
             - name: OTEL_INSTRUMENTATION_HTTP_CAPTURE_HEADERS_SERVER_RESPONSE
-              value: "Last-Modified,Content-Type"
+              value: ".*"
             - name: OTEL_PYTHON_LOGGING_AUTO_INSTRUMENTATION_ENABLED
               value: "true"
             - name: PYTHONUNBUFFERED

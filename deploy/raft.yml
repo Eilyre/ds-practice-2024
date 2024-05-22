@@ -15,14 +15,28 @@ spec:
     spec:
       containers:
         - name: raft-node
-          image: registry.hpc.ut.ee/sander/raft_node_1:latest
+          image: registry.hpc.ut.ee/sander/database:latest
           ports:
             - containerPort: 50060
           env:
-            - name: NODE_ID
+            - name: OTEL_PYTHON_LOGGING_AUTO_INSTRUMENTATION_ENABLED
+              value: "true"
+            - name: OTEL_SERVICE_NAME
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
             - name: DOMAIN
               value: .raft
             - name: PEERS

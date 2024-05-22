@@ -2,7 +2,8 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-from . import raft_pb2 as raft__pb2
+from utils.pb.raft import raft_pb2 as utils_dot_pb_dot_raft_dot_raft__pb2
+
 
 class RaftStub(object):
     """Missing associated documentation comment in .proto file."""
@@ -15,33 +16,33 @@ class RaftStub(object):
         """
         self.AppendEntries = channel.unary_unary(
                 '/raft.Raft/AppendEntries',
-                request_serializer=raft__pb2.AppendEntriesRequest.SerializeToString,
-                response_deserializer=raft__pb2.AppendEntriesResponse.FromString,
+                request_serializer=utils_dot_pb_dot_raft_dot_raft__pb2.AppendEntriesRequest.SerializeToString,
+                response_deserializer=utils_dot_pb_dot_raft_dot_raft__pb2.AppendEntriesResponse.FromString,
                 )
         self.RequestVote = channel.unary_unary(
                 '/raft.Raft/RequestVote',
-                request_serializer=raft__pb2.RequestVoteRequest.SerializeToString,
-                response_deserializer=raft__pb2.RequestVoteResponse.FromString,
+                request_serializer=utils_dot_pb_dot_raft_dot_raft__pb2.RequestVoteRequest.SerializeToString,
+                response_deserializer=utils_dot_pb_dot_raft_dot_raft__pb2.RequestVoteResponse.FromString,
                 )
         self.StateMachineInfo = channel.unary_unary(
                 '/raft.Raft/StateMachineInfo',
-                request_serializer=raft__pb2.Empty.SerializeToString,
-                response_deserializer=raft__pb2.Info.FromString,
+                request_serializer=utils_dot_pb_dot_raft_dot_raft__pb2.Empty.SerializeToString,
+                response_deserializer=utils_dot_pb_dot_raft_dot_raft__pb2.Info.FromString,
                 )
         self.WriteCommand = channel.unary_unary(
                 '/raft.Raft/WriteCommand',
-                request_serializer=raft__pb2.Command.SerializeToString,
-                response_deserializer=raft__pb2.RaftClientStatus.FromString,
+                request_serializer=utils_dot_pb_dot_raft_dot_raft__pb2.Command.SerializeToString,
+                response_deserializer=utils_dot_pb_dot_raft_dot_raft__pb2.RaftClientStatus.FromString,
                 )
         self.Request_Commit = channel.unary_unary(
                 '/raft.Raft/Request_Commit',
-                request_serializer=raft__pb2.Request_Commit_Message.SerializeToString,
-                response_deserializer=raft__pb2.Response.FromString,
+                request_serializer=utils_dot_pb_dot_raft_dot_raft__pb2.Request_Commit_Message.SerializeToString,
+                response_deserializer=utils_dot_pb_dot_raft_dot_raft__pb2.Response.FromString,
                 )
         self.Commit = channel.unary_unary(
                 '/raft.Raft/Commit',
-                request_serializer=raft__pb2.Commit_Message.SerializeToString,
-                response_deserializer=raft__pb2.Response.FromString,
+                request_serializer=utils_dot_pb_dot_raft_dot_raft__pb2.Commit_Message.SerializeToString,
+                response_deserializer=utils_dot_pb_dot_raft_dot_raft__pb2.Response.FromString,
                 )
 
 
@@ -89,33 +90,33 @@ def add_RaftServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'AppendEntries': grpc.unary_unary_rpc_method_handler(
                     servicer.AppendEntries,
-                    request_deserializer=raft__pb2.AppendEntriesRequest.FromString,
-                    response_serializer=raft__pb2.AppendEntriesResponse.SerializeToString,
+                    request_deserializer=utils_dot_pb_dot_raft_dot_raft__pb2.AppendEntriesRequest.FromString,
+                    response_serializer=utils_dot_pb_dot_raft_dot_raft__pb2.AppendEntriesResponse.SerializeToString,
             ),
             'RequestVote': grpc.unary_unary_rpc_method_handler(
                     servicer.RequestVote,
-                    request_deserializer=raft__pb2.RequestVoteRequest.FromString,
-                    response_serializer=raft__pb2.RequestVoteResponse.SerializeToString,
+                    request_deserializer=utils_dot_pb_dot_raft_dot_raft__pb2.RequestVoteRequest.FromString,
+                    response_serializer=utils_dot_pb_dot_raft_dot_raft__pb2.RequestVoteResponse.SerializeToString,
             ),
             'StateMachineInfo': grpc.unary_unary_rpc_method_handler(
                     servicer.StateMachineInfo,
-                    request_deserializer=raft__pb2.Empty.FromString,
-                    response_serializer=raft__pb2.Info.SerializeToString,
+                    request_deserializer=utils_dot_pb_dot_raft_dot_raft__pb2.Empty.FromString,
+                    response_serializer=utils_dot_pb_dot_raft_dot_raft__pb2.Info.SerializeToString,
             ),
             'WriteCommand': grpc.unary_unary_rpc_method_handler(
                     servicer.WriteCommand,
-                    request_deserializer=raft__pb2.Command.FromString,
-                    response_serializer=raft__pb2.RaftClientStatus.SerializeToString,
+                    request_deserializer=utils_dot_pb_dot_raft_dot_raft__pb2.Command.FromString,
+                    response_serializer=utils_dot_pb_dot_raft_dot_raft__pb2.RaftClientStatus.SerializeToString,
             ),
             'Request_Commit': grpc.unary_unary_rpc_method_handler(
                     servicer.Request_Commit,
-                    request_deserializer=raft__pb2.Request_Commit_Message.FromString,
-                    response_serializer=raft__pb2.Response.SerializeToString,
+                    request_deserializer=utils_dot_pb_dot_raft_dot_raft__pb2.Request_Commit_Message.FromString,
+                    response_serializer=utils_dot_pb_dot_raft_dot_raft__pb2.Response.SerializeToString,
             ),
             'Commit': grpc.unary_unary_rpc_method_handler(
                     servicer.Commit,
-                    request_deserializer=raft__pb2.Commit_Message.FromString,
-                    response_serializer=raft__pb2.Response.SerializeToString,
+                    request_deserializer=utils_dot_pb_dot_raft_dot_raft__pb2.Commit_Message.FromString,
+                    response_serializer=utils_dot_pb_dot_raft_dot_raft__pb2.Response.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -139,8 +140,8 @@ class Raft(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/raft.Raft/AppendEntries',
-            raft__pb2.AppendEntriesRequest.SerializeToString,
-            raft__pb2.AppendEntriesResponse.FromString,
+            utils_dot_pb_dot_raft_dot_raft__pb2.AppendEntriesRequest.SerializeToString,
+            utils_dot_pb_dot_raft_dot_raft__pb2.AppendEntriesResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -156,8 +157,8 @@ class Raft(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/raft.Raft/RequestVote',
-            raft__pb2.RequestVoteRequest.SerializeToString,
-            raft__pb2.RequestVoteResponse.FromString,
+            utils_dot_pb_dot_raft_dot_raft__pb2.RequestVoteRequest.SerializeToString,
+            utils_dot_pb_dot_raft_dot_raft__pb2.RequestVoteResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -173,8 +174,8 @@ class Raft(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/raft.Raft/StateMachineInfo',
-            raft__pb2.Empty.SerializeToString,
-            raft__pb2.Info.FromString,
+            utils_dot_pb_dot_raft_dot_raft__pb2.Empty.SerializeToString,
+            utils_dot_pb_dot_raft_dot_raft__pb2.Info.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -190,8 +191,8 @@ class Raft(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/raft.Raft/WriteCommand',
-            raft__pb2.Command.SerializeToString,
-            raft__pb2.RaftClientStatus.FromString,
+            utils_dot_pb_dot_raft_dot_raft__pb2.Command.SerializeToString,
+            utils_dot_pb_dot_raft_dot_raft__pb2.RaftClientStatus.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -207,8 +208,8 @@ class Raft(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/raft.Raft/Request_Commit',
-            raft__pb2.Request_Commit_Message.SerializeToString,
-            raft__pb2.Response.FromString,
+            utils_dot_pb_dot_raft_dot_raft__pb2.Request_Commit_Message.SerializeToString,
+            utils_dot_pb_dot_raft_dot_raft__pb2.Response.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -224,7 +225,7 @@ class Raft(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/raft.Raft/Commit',
-            raft__pb2.Commit_Message.SerializeToString,
-            raft__pb2.Response.FromString,
+            utils_dot_pb_dot_raft_dot_raft__pb2.Commit_Message.SerializeToString,
+            utils_dot_pb_dot_raft_dot_raft__pb2.Response.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

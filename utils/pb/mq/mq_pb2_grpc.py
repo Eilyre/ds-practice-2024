@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import utils.pb.mq.mq_pb2 as mq__pb2
+from utils.pb.mq import mq_pb2 as utils_dot_pb_dot_mq_dot_mq__pb2
 
 
 class MQServiceStub(object):
@@ -16,18 +16,18 @@ class MQServiceStub(object):
         """
         self.enqueue = channel.unary_unary(
                 '/mq.MQService/enqueue',
-                request_serializer=mq__pb2.CheckoutRequest.SerializeToString,
-                response_deserializer=mq__pb2.Response.FromString,
+                request_serializer=utils_dot_pb_dot_mq_dot_mq__pb2.CheckoutRequest.SerializeToString,
+                response_deserializer=utils_dot_pb_dot_mq_dot_mq__pb2.Response.FromString,
                 )
         self.dequeue = channel.unary_unary(
                 '/mq.MQService/dequeue',
-                request_serializer=mq__pb2.Empty.SerializeToString,
-                response_deserializer=mq__pb2.CheckoutRequest.FromString,
+                request_serializer=utils_dot_pb_dot_mq_dot_mq__pb2.Empty.SerializeToString,
+                response_deserializer=utils_dot_pb_dot_mq_dot_mq__pb2.CheckoutRequest.FromString,
                 )
         self.info = channel.unary_unary(
                 '/mq.MQService/info',
-                request_serializer=mq__pb2.Empty.SerializeToString,
-                response_deserializer=mq__pb2.QueueStatus.FromString,
+                request_serializer=utils_dot_pb_dot_mq_dot_mq__pb2.Empty.SerializeToString,
+                response_deserializer=utils_dot_pb_dot_mq_dot_mq__pb2.QueueStatus.FromString,
                 )
 
 
@@ -57,18 +57,18 @@ def add_MQServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'enqueue': grpc.unary_unary_rpc_method_handler(
                     servicer.enqueue,
-                    request_deserializer=mq__pb2.CheckoutRequest.FromString,
-                    response_serializer=mq__pb2.Response.SerializeToString,
+                    request_deserializer=utils_dot_pb_dot_mq_dot_mq__pb2.CheckoutRequest.FromString,
+                    response_serializer=utils_dot_pb_dot_mq_dot_mq__pb2.Response.SerializeToString,
             ),
             'dequeue': grpc.unary_unary_rpc_method_handler(
                     servicer.dequeue,
-                    request_deserializer=mq__pb2.Empty.FromString,
-                    response_serializer=mq__pb2.CheckoutRequest.SerializeToString,
+                    request_deserializer=utils_dot_pb_dot_mq_dot_mq__pb2.Empty.FromString,
+                    response_serializer=utils_dot_pb_dot_mq_dot_mq__pb2.CheckoutRequest.SerializeToString,
             ),
             'info': grpc.unary_unary_rpc_method_handler(
                     servicer.info,
-                    request_deserializer=mq__pb2.Empty.FromString,
-                    response_serializer=mq__pb2.QueueStatus.SerializeToString,
+                    request_deserializer=utils_dot_pb_dot_mq_dot_mq__pb2.Empty.FromString,
+                    response_serializer=utils_dot_pb_dot_mq_dot_mq__pb2.QueueStatus.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -92,8 +92,8 @@ class MQService(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/mq.MQService/enqueue',
-            mq__pb2.CheckoutRequest.SerializeToString,
-            mq__pb2.Response.FromString,
+            utils_dot_pb_dot_mq_dot_mq__pb2.CheckoutRequest.SerializeToString,
+            utils_dot_pb_dot_mq_dot_mq__pb2.Response.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -109,8 +109,8 @@ class MQService(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/mq.MQService/dequeue',
-            mq__pb2.Empty.SerializeToString,
-            mq__pb2.CheckoutRequest.FromString,
+            utils_dot_pb_dot_mq_dot_mq__pb2.Empty.SerializeToString,
+            utils_dot_pb_dot_mq_dot_mq__pb2.CheckoutRequest.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -126,7 +126,7 @@ class MQService(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/mq.MQService/info',
-            mq__pb2.Empty.SerializeToString,
-            mq__pb2.QueueStatus.FromString,
+            utils_dot_pb_dot_mq_dot_mq__pb2.Empty.SerializeToString,
+            utils_dot_pb_dot_mq_dot_mq__pb2.QueueStatus.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

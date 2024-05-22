@@ -97,8 +97,39 @@ def object_2_vc_msg(vc: VectorClock):
     vcm.clock.extend(vc.clock)
     return vcm
 
-def order(creditcard, priority=1000):
+def order(checkout_request : mq.CheckoutRequest, priority=1000):
+    logs.info("order function triggered")
+
+    user_info = checkout_request.get("user")
+    credit_card_info = checkout_request.get("creditCard")
+    billing_address_info = checkout_request.get("billingAddress")
+    device_info = checkout_request.get("device")
+    browser_info = checkout_request.get("browser")
+    items_info = checkout_request.get("items", [])
+    referrer_info = checkout_request.get("referrer")
+    logs.info("Items ordered:   " + str(items_info))
+
+    user_info_instance = mq.UserData(name=user_info["name"], contact=user_info["contact"]) if user_info else None
+    credit_card_info_instance = mq.CreditCardData(number=credit_card_info["number"], expirationDate=credit_card_info["expirationDate"], cvv=credit_card_info["cvv"]) if credit_card_info else None
+    billing_address_info_instance = mq.BillingAddressData(street=billing_address_info["street"], city=billing_address_info["city"], state=billing_address_info["state"], zip=billing_address_info["zip"], country=billing_address_info["country"]) if billing_address_info else None
+    device_info_instance = mq.DeviceData(type=device_info["type"], model=device_info["model"], os=device_info["os"]) if device_info else None
+    browser_info_instance = mq.BrowserData(name=browser_info["name"], version=browser_info["version"]) if browser_info else None
+    items_info_instance = [mq.ItemData(name=str(items_info[0]["name"]), quantity="1")] if items_info else []
+    vector_clock_message = mq.VectorClockMessage()
+
+    request = mq.CheckoutRequest(
+        user=user_info_instance,
+        creditCard=credit_card_info_instance,
+        billingAddress=billing_address_info_instance,
+        device=device_info_instance,
+        browser=browser_info_instance,
+        items=items_info_instance,
+        referrer=referrer_info,
+        vector_clock=vector_clock_message,
+        priority=priority
+    )
+    
     with grpc.insecure_channel('queue:50055') as channel:
         stub = mq_grpc.MQServiceStub(channel)
-        response = stub.enqueue(mq.CheckoutRequest(priority=priority, creditcard=creditcard))
+        response = stub.enqueue(request)
     return {"error": response.error, "error_message": response.error_message}

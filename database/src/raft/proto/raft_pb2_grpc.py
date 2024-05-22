@@ -4,6 +4,7 @@ import grpc
 
 from . import raft_pb2 as raft__pb2
 
+
 class RaftStub(object):
     """Missing associated documentation comment in .proto file."""
 

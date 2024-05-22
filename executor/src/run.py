@@ -19,7 +19,7 @@ import grpc
 import threading
 import signal
 import time
-import uuid
+
 
 logs = logger.get_module_logger("EXECUTOR")
 logs.info("Executor started")
@@ -35,10 +35,12 @@ def dequeue():
 def send_request_commits(id, checkout_request: mq.CheckoutRequest):
     with grpc.insecure_channel('database:50060') as channel:
         stub = raft_grpc.RaftStub(channel)
-        message = raft.Request_Commit_Message()
+        message: raft.Request_Commit_Message = raft.Request_Commit_Message()
         message.id = id
-        response: raft.Response = stub.Request_Commit(message)
 
+        response: raft.Response = stub.Request_Commit(request=message)
+        logs.info("Sent request commit message: " + str(message) + " to Raft")
+    
     if not response.status:
         logs.error(f"Failed to send request commits for id {id}. Error: {response.message}")
         return False, response.message
@@ -68,7 +70,7 @@ def send_commits(id, rollback):
         message_raft = raft.Commit_Message()
         message_raft.id = id
         message_raft.rollback = rollback
-        response_raft = stub.Commit(message_raft)
+        response_raft = stub.Commit(request=message_raft)
 
     status1 = response_raft.status
     message1 = response_raft.message
@@ -101,9 +103,9 @@ def send_commits(id, rollback):
 def process_message(stop_event):
     while not stop_event.is_set():
         try:
-            message = dequeue()
+            message : mq.CheckoutRequest= dequeue()
             logs.debug(f"Processing message: {message}")
-            id = int(uuid.uuid4()) % 10000
+            id = message.items[0].name
             status, message = send_request_commits(id, message)
             time.sleep(5)
             if not status:

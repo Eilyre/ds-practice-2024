@@ -18,9 +18,6 @@ import threading
 class RaftService(RaftServicer):
     def __init__(self, node_id, nodes, server):
         self.node = Node(node_id, nodes)
-        self.commit_lock = threading.Lock()
-        self.commit_data = None
-
 
         signal.signal(signal.SIGTERM, lambda signum, frame: self.node.terminate(server, signum))
         signal.signal(signal.SIGINT, lambda signum, frame: self.node.terminate(server, signum))
@@ -40,49 +37,80 @@ class RaftService(RaftServicer):
         return self.node.write_command(request)
 
     def Request_Commit(self, request, context):
-        self.node.logger.info("Request Commit triggered for id: %s", request.id)
+        self.node.logger.info("Request Commit triggered for id: %s", request)
         response = Response()
-        if self.commit_lock.locked():
-            response.status = False
-            response.message = "Raft not ready to commit. Preoccupied with id" + str(self.commit_data)
-        else:
-            self.commit_lock.acquire()
+        #check whether this key is already locked 
+        if not self.node.state_machine.is_locked(request.id):
             response.status = True
             response.message = "Ready to commit"
-            self.commit_data = request.id
+
+            current_value = self.node.state_machine._get(request.id)
+            if current_value == "Key not found":
+                raft_request = Command()
+                raft_request.key = str(request.id)
+                raft_request.operation= "set"
+                raft_request.value = "0"
+                self.node.write_command(raft_request)
+
+            raft_request = Command()
+            raft_request.key = str(request.id)
+            raft_request.operation= "lock"
+            raft_request.value = ""
+            self.node.write_command(raft_request)
+
+        else:
+            response.status = False
+            response.message = "Raft not ready to commit because key " + str(request.id)  + " is locked "
+
 
         return response
         
     def Commit(self, request: Commit_Message, context):
         self.node.logger.info("Commit triggered for id: %s", request.id)
+        self.node.logger.info("commit " + str(self) +str(request) + str(context))
         response = Response()
 
+
         if request.rollback:
+
+            raft_request = Command()
+            raft_request.key = str(request.id)
+            raft_request.operation= "unlock"
+            raft_request.value = ""
+            self.node.write_command(raft_request)
+
+
             response.message = "Rolled back successfully"
             response.status = True
-            self.commit_data = None
-            if self.commit_lock.locked(): 
-                self.commit_lock.release()
+
             return response 
 
-        if int(request.id) == int(self.commit_data):
-            try:
-                raft_request = Command()
-                raft_request.key = str(self.commit_data)
-                raft_request.operation= "set"
-                raft_request.value = "writing is hard"
-                self.node.write_command(raft_request)
-                response.message = "Committed successfully"
-                response.status = True
-                self.commit_data = None
-                self.commit_lock.release()
-            except Exception as e:
-                self.node.logger.error("Error during committing: %s", e)
-                response.message = "Committing failed in Raft.: " + str(e)
-                response.status = False
-        else:
-            response.message = "Committing failed in Raft. Preoccupied with id " + str(self.commit_data) + " while received " + str(request.id) 
-            response.status = False 
+        try:
+            current_value = self.node.state_machine._get(request.id)
+            if current_value == "Key not found":
+                new_value = 1
+            else:
+                new_value  = int(current_value) + 1 
+
+
+            raft_request = Command()
+            raft_request.key = str(request.id)
+            raft_request.operation= "commit"
+            raft_request.value = str(new_value)
+
+
+
+            self.node.write_command(raft_request)
+
+
+            response.message = "Committed successfully"
+            response.status = True
+
+        except Exception as e:
+            self.node.logger.error("Error during committing: %s", e)
+            response.message = "Committing failed in Raft.: " + str(e)
+            response.status = False
+        
         return response    
 
 

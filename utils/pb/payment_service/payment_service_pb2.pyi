@@ -15,13 +15,13 @@ class Response(_message.Message):
 class Request_Commit_Message(_message.Message):
     __slots__ = ("id",)
     ID_FIELD_NUMBER: _ClassVar[int]
-    id: int
-    def __init__(self, id: _Optional[int] = ...) -> None: ...
+    id: str
+    def __init__(self, id: _Optional[str] = ...) -> None: ...
 
 class Commit_Message(_message.Message):
     __slots__ = ("id", "rollback")
     ID_FIELD_NUMBER: _ClassVar[int]
     ROLLBACK_FIELD_NUMBER: _ClassVar[int]
-    id: int
+    id: str
     rollback: bool
-    def __init__(self, id: _Optional[int] = ..., rollback: bool = ...) -> None: ...
+    def __init__(self, id: _Optional[str] = ..., rollback: bool = ...) -> None: ...

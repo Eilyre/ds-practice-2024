@@ -37,6 +37,7 @@ class MessagingQueue:
         self.condition = threading.Condition(self.lock)
 
     def enqueue(self, message, priority):
+        logs.info("MessagingQueue.enqueue triggered for " + str(message) + " priority " + str(priority))
         with self.condition:
             insert_time = time.time()
             self.queue.append((priority, insert_time, message))
@@ -56,7 +57,7 @@ class MessagingQueue:
     def __repr__(self):
         items = []
         for priority, timestamp, item in self.queue:
-            item_repr = f'({priority}, {timestamp}, number: "{item.number}", expirationDate: "{item.expirationDate}", cvv: "{item.cvv}")'
+            item_repr = f'({priority}, {timestamp}, item: "{item}")'
             items.append(item_repr)
 
         return "Queue([{}])".format(", ".join(items))
@@ -68,27 +69,32 @@ class QueueManager:
 
     # Trigger this via: grpcurl -proto mq.proto -import-path utils/pb/mq/ -d '{"priority": 3, "creditcard": {"number": "123", "expirationDate": "17/03/2023", "cvv": "123"}}' -plaintext localhost:50055 mq.MQService/enqueue
     @log_grpc_request
-    def enqueue(self, request, context):
+    def enqueue(self, request: mq.CheckoutRequest, context):
+        logs.info("QueueManager.enqueue triggered for " + str(request))
         response = mq.Response(error=False, error_message=None)
 
+
         try:
-            self.message_handler.enqueue(request.creditcard, request.priority)
+            self.message_handler.enqueue(message = request, priority=request.priority)
 
         except Exception as e:
             response.error = True
             response.error_message = str(e)
-            logs.error(e)
+            logs.error("enqueueing failed with error: " + str(e))
 
         return response
 
     # Trigger this via: grpcurl -proto mq.proto -import-path utils/pb/mq/  -plaintext localhost:50055 mq.MQService/dequeue
     @log_grpc_request
     def dequeue(self, request, context):
+        logs.info("QueueManager.dequeue triggered for " + str(request))
+        logs.info("Queue: " + str(repr(self.message_handler)))
         response = mq.CheckoutRequest(priority=0)
 
         try:
-            item = self.message_handler.dequeue()
-            response.creditcard.cvv, response.creditcard.number, response.creditcard.expirationDate = item.cvv, item.number, item.expirationDate
+            item :mq.CheckoutRequest= self.message_handler.dequeue()
+            logs.info("Dequeued item:" + str(item))
+            response = item
 
         except Exception as e:
             logs.error(e)

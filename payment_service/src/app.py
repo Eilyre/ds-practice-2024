@@ -46,7 +46,7 @@ class PaymentService(Payment_ServiceServicer):
                 self.commit_lock.release()
             return response 
 
-        if int(request.id) == int(self.commit_data):
+        if request.id == self.commit_data:
             try:
                 response.message = "Committed successfully"
                 response.status = True

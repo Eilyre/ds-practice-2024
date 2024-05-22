@@ -7,12 +7,29 @@ sys.path.insert(0, str(app_dir))
 
 from utils.logger import logger
 from utils.pb.payment_service.payment_service_pb2_grpc import *
-from utils.pb.payment_service.payment_service_pb2 import Request_Commit_Message, Commit_Message, Response
+from utils.pb.payment_service.payment_service_pb2 import Commit_Message, Response
 import grpc
 from concurrent import futures
 import threading
 
+from opentelemetry import metrics
+from opentelemetry.sdk.metrics import MeterProvider
+from opentelemetry.sdk.metrics.export import ConsoleMetricExporter, PeriodicExportingMetricReader
+
+metric_reader = PeriodicExportingMetricReader(ConsoleMetricExporter())
+provider = MeterProvider(metric_readers=[metric_reader])
+
+metrics.set_meter_provider(provider)
+meter = metrics.get_meter(__name__)
+
+payment_status = meter.create_up_down_counter(
+    name="payment_status",
+    description="Number of payment attempts per status.",
+    unit="1",
+)
+
 logs = logger.get_module_logger("PAYMENT SERVICE")
+
 
 class PaymentService(Payment_ServiceServicer):
 
@@ -33,7 +50,7 @@ class PaymentService(Payment_ServiceServicer):
             self.commit_data = request.id
 
         return response
-        
+
     def Commit(self, request: Commit_Message, context):
         logs.info("Commit triggered for id: %s", request.id)
         response = Response()
@@ -42,9 +59,12 @@ class PaymentService(Payment_ServiceServicer):
             response.message = "Rolled back successfully"
             response.status = True
             self.commit_data = None
-            if self.commit_lock.locked(): 
+            if self.commit_lock.locked():
                 self.commit_lock.release()
-            return response 
+
+            payment_status.add(1, {"status": "rollback"})
+
+            return response
 
         if request.id == self.commit_data:
             try:
@@ -52,16 +72,24 @@ class PaymentService(Payment_ServiceServicer):
                 response.status = True
                 self.commit_data = None
                 self.commit_lock.release()
+                payment_status.add(1, {"status": "ok"})
+
             except Exception as e:
                 logs.error("Error during committing: %s", e)
                 response.message = "Committing failed: " + str(e)
                 response.status = False
+                payment_status.add(1, {"status": "error"})
         else:
             response.message = "Committing failed. Preoccupied with id" + str(self.commit_data) + " while receiving " + str(request.id)
-            response.status = False 
-        return response    
+            response.status = False
+            payment_status.add(1, {"status": "conflict"})
+
+        return response
+
+
 def pay(request):
     pass
+
 
 def serve():
     # Create a gRPC server
@@ -72,6 +100,7 @@ def serve():
     server.start()
     logs.info(f"Server started. Listening on port {port}.")
     server.wait_for_termination()
+
 
 if __name__ == '__main__':
     serve()

@@ -18,8 +18,44 @@ from utils.logger import logger
 import grpc
 import threading
 import signal
-import time
+import psutil
 
+from opentelemetry import metrics
+from opentelemetry.sdk.metrics import MeterProvider
+from opentelemetry.sdk.metrics.export import ConsoleMetricExporter, PeriodicExportingMetricReader
+from opentelemetry.sdk.metrics._internal.instrument import CallbackOptions, Measurement
+
+metric_reader = PeriodicExportingMetricReader(ConsoleMetricExporter())
+provider = MeterProvider(metric_readers=[metric_reader])
+
+metrics.set_meter_provider(provider)
+meter = metrics.get_meter(__name__)
+
+metrics.set_meter_provider(provider)
+meter = metrics.get_meter(__name__)
+
+
+def cpu_usage_callback(options: CallbackOptions):
+    return [Measurement(psutil.cpu_percent(), {"state": "cpu_usage"})]
+
+
+def memory_usage_callback(options: CallbackOptions):
+    return [Measurement(psutil.virtual_memory().percent, {"state": "memory_usage"})]
+
+
+meter.create_observable_gauge(
+    name="cpu_usage",
+    description="CPU Usage",
+    unit="percent",
+    callbacks=[cpu_usage_callback]
+)
+
+meter.create_observable_gauge(
+    name="memory_usage",
+    description="Memory Usage",
+    unit="percent",
+    callbacks=[memory_usage_callback]
+)
 
 logs = logger.get_module_logger("EXECUTOR")
 logs.info("Executor started")
@@ -40,7 +76,7 @@ def send_request_commits(id, checkout_request: mq.CheckoutRequest):
 
         response: raft.Response = stub.Request_Commit(request=message)
         logs.info("Sent request commit message: " + str(message) + " to Raft")
-    
+
     if not response.status:
         logs.error(f"Failed to send request commits for id {id}. Error: {response.message}")
         return False, response.message
@@ -103,7 +139,7 @@ def send_commits(id, rollback):
 def process_message(stop_event):
     while not stop_event.is_set():
         try:
-            message : mq.CheckoutRequest= dequeue()
+            message: mq.CheckoutRequest = dequeue()
             logs.debug(f"Processing message: {message}")
             id = message.items[0].name
             status, message = send_request_commits(id, message)

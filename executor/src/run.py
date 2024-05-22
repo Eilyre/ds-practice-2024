@@ -107,7 +107,6 @@ def process_message(stop_event):
             logs.debug(f"Processing message: {message}")
             id = message.items[0].name
             status, message = send_request_commits(id, message)
-            time.sleep(5)
             if not status:
                 rollback = True
                 logs.error(message)

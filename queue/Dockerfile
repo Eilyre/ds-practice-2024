@@ -5,14 +5,6 @@ FROM python:3.11
 # Both the utils and src folders will be mounted as volumes, please see docker-compose.yaml
 WORKDIR /app
 
-# Copy the requirements file to the working directory
-COPY ./queue/requirements.txt .
-ADD ./queue/src queue/src
-ADD ./utils utils
-
-# Install the Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
-
 # Set the instrumentation variables
 ENV OTEL_SERVICE_NAME=queue
 ENV OTEL_TRACES_EXPORTER=otlp_proto_grpc
@@ -23,6 +15,14 @@ ENV OTEL_EXPORTER_OTLP_TRACES_INSECURE=true
 ENV OTEL_EXPORTER_OTLP_METRICS_INSECURE=true
 ENV OTEL_EXPORTER_OTLP_LOGS_INSECURE=true
 ENV GRPC_TRACE=http,call_error,connectivity_state
+
+# Copy the requirements file to the working directory
+COPY ./queue/requirements.txt .
+ADD ./queue/src queue/src
+ADD ./utils utils
+
+# Install the Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Set the command to run the container
 CMD opentelemetry-instrument python3 "queue/src/run.py"

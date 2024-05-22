@@ -5,14 +5,6 @@ FROM python:3.11
 # Both the utils and src folders will be mounted as volumes, please see docker-compose.yaml
 WORKDIR /app
 
-# Copy the requirements file to the working directory
-COPY ./orchestrator/requirements.txt .
-ADD ./orchestrator/src orchestrator/src
-ADD ./utils utils
-
-# Install the Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
-
 # Set the instrumentation variables
 ENV OTEL_SERVICE_NAME=orchestrator
 ENV OTEL_TRACES_EXPORTER=otlp_proto_grpc
@@ -24,6 +16,14 @@ ENV OTEL_EXPORTER_OTLP_METRICS_INSECURE=true
 ENV OTEL_EXPORTER_OTLP_LOGS_INSECURE=true
 ENV GRPC_TRACE=http,call_error,connectivity_state
 
+# Copy the requirements file to the working directory
+COPY ./orchestrator/requirements.txt .
+
+# Install the Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+ADD ./orchestrator/src orchestrator/src
+ADD ./utils utils
 
 # Set the command to run the container
 CMD opentelemetry-instrument python3 "orchestrator/src/run.py"

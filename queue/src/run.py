@@ -14,6 +14,22 @@ import grpc, time
 from concurrent import futures
 import threading
 
+from opentelemetry import metrics
+from opentelemetry.sdk.metrics import MeterProvider
+from opentelemetry.sdk.metrics.export import ConsoleMetricExporter, PeriodicExportingMetricReader
+
+metric_reader = PeriodicExportingMetricReader(ConsoleMetricExporter())
+provider = MeterProvider(metric_readers=[metric_reader])
+
+metrics.set_meter_provider(provider)
+meter = metrics.get_meter(__name__)
+
+queue_size_counter = meter.create_up_down_counter(
+    name="queue_size",
+    description="Number of items in the queue",
+    unit="1",
+)
+
 logs = logger.get_module_logger("QUEUE")
 
 
@@ -43,13 +59,16 @@ class MessagingQueue:
             self.queue.append((priority, insert_time, message))
             self.queue.sort()
             self.condition.notify()
+            queue_size_counter.add(1)
 
     def dequeue(self):
         with self.condition:
             while not self.queue:
                 self.condition.wait()
 
-            return self.queue.pop(0)[2]
+            item = self.queue.pop(0)[2]
+            queue_size_counter.add(-1)
+            return item
 
     def __len__(self):
         return len(self.queue)
@@ -73,9 +92,8 @@ class QueueManager:
         logs.info("QueueManager.enqueue triggered for " + str(request))
         response = mq.Response(error=False, error_message=None)
 
-
         try:
-            self.message_handler.enqueue(message = request, priority=request.priority)
+            self.message_handler.enqueue(message=request, priority=request.priority)
 
         except Exception as e:
             response.error = True
@@ -92,7 +110,7 @@ class QueueManager:
         response = mq.CheckoutRequest(priority=0)
 
         try:
-            item :mq.CheckoutRequest= self.message_handler.dequeue()
+            item: mq.CheckoutRequest = self.message_handler.dequeue()
             logs.info("Dequeued item:" + str(item))
             response = item
 

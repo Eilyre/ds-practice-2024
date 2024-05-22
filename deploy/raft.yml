@@ -16,12 +16,19 @@ spec:
       containers:
         - name: raft-node
           image: registry.hpc.ut.ee/sander/database:latest
+          imagePullPolicy: always
           ports:
             - containerPort: 50060
           env:
             - name: OTEL_PYTHON_LOGGING_AUTO_INSTRUMENTATION_ENABLED
-              value: "true"
+              value: "false"
+            - name: OTEL_PYTHON_GRPC_EXCLUDED_SERVICES
+              value: "RequestVote,AppendEntries"
             - name: OTEL_SERVICE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: NODE_ID
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name

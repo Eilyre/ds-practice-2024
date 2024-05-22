@@ -3,7 +3,7 @@
 REPOSITORY="registry.hpc.ut.ee/sander"
 TAG="latest"
 
-docker compose --parallel 8 build
+docker compose --parallel 12 build
 
 IMAGES=$(cat docker-compose.yaml | yq '.services | keys | .[]')
 

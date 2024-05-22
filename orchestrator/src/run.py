@@ -13,6 +13,7 @@ import psutil
 from opentelemetry import metrics
 from opentelemetry.sdk.metrics import MeterProvider
 from opentelemetry.sdk.metrics.export import ConsoleMetricExporter, PeriodicExportingMetricReader
+from opentelemetry.sdk.metrics._internal.instrument import CallbackOptions, Measurement
 
 metric_reader = PeriodicExportingMetricReader(ConsoleMetricExporter())
 provider = MeterProvider(metric_readers=[metric_reader])
@@ -21,12 +22,12 @@ metrics.set_meter_provider(provider)
 meter = metrics.get_meter(__name__)
 
 
-def cpu_usage_callback(observer):
-    observer.observe(psutil.cpu_percent(), {"state": "cpu_usage"})
+def cpu_usage_callback(options: CallbackOptions):
+    return [Measurement(psutil.cpu_percent(), {"state": "cpu_usage"})]
 
 
-def memory_usage_callback(observer):
-    observer.observe(psutil.virtual_memory().percent, {"state": "memory_usage"})
+def memory_usage_callback(options: CallbackOptions):
+    return [Measurement(psutil.virtual_memory().percent, {"state": "memory_usage"})]
 
 
 meter.create_observable_gauge(
